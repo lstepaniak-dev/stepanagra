@@ -148,6 +148,7 @@ function newRound() {
 const map = new jsVectorMap({
   selector: "#map",
   map: "world",
+  showTooltip: false, // 🔹 вимикаємо назви при наведенні
   onRegionClick: function(event, code) {
     if (code === current.code) {
       score++;
