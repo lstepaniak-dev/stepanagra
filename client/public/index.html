@@ -2,7 +2,10 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<title>Географічна гра</title>
+<title>🌍 Географічна гра</title>
+
+<script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
+<link href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css" rel="stylesheet" />
 
 <style>
 body {
@@ -17,32 +20,19 @@ h1 {
   margin: 10px;
 }
 
+#map {
+  width: 90%;
+  height: 500px;
+  margin: auto;
+}
+
+#flag {
+  font-size: 60px;
+  margin: 10px;
+}
+
 #score {
   font-size: 20px;
-}
-
-svg {
-  width: 90%;
-  height: 70vh;
-  margin-top: 20px;
-}
-
-path {
-  fill: #1e293b;
-  stroke: white;
-  cursor: pointer;
-}
-
-path:hover {
-  fill: #38bdf8;
-}
-
-.correct {
-  fill: green !important;
-}
-
-.wrong {
-  fill: red !important;
 }
 </style>
 </head>
@@ -50,27 +40,24 @@ path:hover {
 <body>
 
 <h1>🌍 Географічна гра</h1>
+<div id="flag">🏳️</div>
 <p id="question">Завантаження...</p>
 <p id="score">Рахунок: 0</p>
 
-<svg viewBox="0 0 800 400">
+<div id="map"></div>
 
-  <path id="Ukraine" d="M400 200 L450 220 L430 260 L380 240 Z"></path>
-  <path id="France" d="M300 220 L340 240 L320 280 L280 260 Z"></path>
-  <path id="Germany" d="M350 180 L380 200 L360 240 L330 220 Z"></path>
-  <path id="Poland" d="M400 150 L430 170 L410 200 L380 180 Z"></path>
-
-</svg>
+<script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
 
 <script>
-const countries = ["Ukraine", "France", "Germany", "Poland"];
-
-const uaNames = {
-  Ukraine: "Україна",
-  France: "Франція",
-  Germany: "Німеччина",
-  Poland: "Польща"
-};
+const countries = [
+  { code: "UA", name: "Україна", flag: "🇺🇦" },
+  { code: "FR", name: "Франція", flag: "🇫🇷" },
+  { code: "DE", name: "Німеччина", flag: "🇩🇪" },
+  { code: "PL", name: "Польща", flag: "🇵🇱" },
+  { code: "US", name: "США", flag: "🇺🇸" },
+  { code: "IT", name: "Італія", flag: "🇮🇹" },
+  { code: "ES", name: "Іспанія", flag: "🇪🇸" }
+];
 
 let current;
 let score = 0;
@@ -78,28 +65,27 @@ let score = 0;
 function newRound() {
   current = countries[Math.floor(Math.random() * countries.length)];
   document.getElementById("question").innerText =
-    "Знайди: " + uaNames[current];
+    "Знайди: " + current.name;
+  document.getElementById("flag").innerText = current.flag;
 }
 
-document.querySelectorAll("path").forEach(el => {
-  el.addEventListener("click", () => {
+const map = new jsVectorMap({
+  selector: "#map",
+  map: "world",
+  onRegionClick: function(e, code) {
 
-    document.querySelectorAll("path").forEach(p =>
-      p.classList.remove("correct", "wrong")
-    );
-
-    if (el.id === current) {
+    if (code === current.code) {
       score++;
-      el.classList.add("correct");
+      alert("✅ Правильно!");
     } else {
-      el.classList.add("wrong");
+      alert("❌ Неправильно!");
     }
 
     document.getElementById("score").innerText =
       "Рахунок: " + score;
 
-    setTimeout(newRound, 1000);
-  });
+    newRound();
+  }
 });
 
 newRound();
