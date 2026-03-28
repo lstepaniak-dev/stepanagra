@@ -1,17 +1,109 @@
 <!DOCTYPE html>
-<html>
+<html lang="uk">
 <head>
-  <title>Geography Game</title>
+<meta charset="UTF-8">
+<title>Географічна гра</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  text-align: center;
+  background: #0f172a;
+  color: white;
+}
+
+h1 {
+  margin: 10px;
+}
+
+#score {
+  font-size: 20px;
+}
+
+svg {
+  width: 95%;
+  height: 80vh;
+}
+
+path {
+  fill: #1e293b;
+  stroke: #94a3b8;
+  cursor: pointer;
+}
+
+path:hover {
+  fill: #38bdf8;
+}
+
+.correct {
+  fill: green !important;
+}
+
+.wrong {
+  fill: red !important;
+}
+</style>
 </head>
+
 <body>
-  <h1>Geography Game</h1>
-  <p id="question"></p>
-  <p id="score">Score: 0</p>
 
-  <button onclick="checkAnswer('Ukraine')">Ukraine</button>
-  <button onclick="checkAnswer('France')">France</button>
-  <button onclick="checkAnswer('Germany')">Germany</button>
+<h1>🌍 Географічна гра</h1>
+<p id="question">Завантаження...</p>
+<p id="score">Рахунок: 0</p>
 
-  <script src="../src/main.js"></script>
+<!-- СПРАВЖНЯ КАРТА -->
+<object id="worldMap" type="image/svg+xml"
+data="https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg">
+</object>
+
+<script>
+const countries = ["Ukraine", "France", "Germany", "Poland"];
+const uaNames = {
+  Ukraine: "Україна",
+  France: "Франція",
+  Germany: "Німеччина",
+  Poland: "Польща"
+};
+
+let current;
+let score = 0;
+
+function newRound() {
+  current = countries[Math.floor(Math.random() * countries.length)];
+  document.getElementById("question").innerText =
+    "Знайди: " + uaNames[current];
+}
+
+document.getElementById("worldMap").addEventListener("load", () => {
+  const svg = document.getElementById("worldMap").contentDocument;
+
+  countries.forEach(c => {
+    const el = svg.getElementById(c);
+    if (!el) return;
+
+    el.addEventListener("click", () => {
+      svg.querySelectorAll("path").forEach(p =>
+        p.classList.remove("correct", "wrong")
+      );
+
+      if (c === current) {
+        score++;
+        el.classList.add("correct");
+      } else {
+        el.classList.add("wrong");
+      }
+
+      document.getElementById("score").innerText =
+        "Рахунок: " + score;
+
+      setTimeout(newRound, 1000);
+    });
+  });
+
+  newRound();
+});
+</script>
+
 </body>
 </html>
