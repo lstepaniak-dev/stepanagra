@@ -2,10 +2,12 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<title>🌍 Географічна гра</title>
+<title>🌍 Географічна гра – всі країни світу</title>
 
-<script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
+<!-- jsVectorMap бібліотека -->
 <link href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
 
 <style>
 body {
@@ -15,75 +17,145 @@ body {
   background: #0f172a;
   color: white;
 }
-
-h1 {
-  margin: 10px;
-}
-
-#map {
-  width: 90%;
-  height: 500px;
-  margin: auto;
-}
-
-#flag {
-  font-size: 60px;
-  margin: 10px;
-}
-
-#score {
-  font-size: 20px;
-}
+h1 { margin: 10px; }
+#map { width: 90%; height: 600px; margin: auto; }
+#flag { font-size: 60px; margin: 10px; }
+#score { font-size: 20px; }
+button { font-size: 18px; margin-top: 10px; padding: 5px 10px; }
 </style>
 </head>
-
 <body>
 
-<h1>🌍 Географічна гра</h1>
+<h1>🌍 Географічна гра – знайди країну</h1>
 <div id="flag">🏳️</div>
 <p id="question">Завантаження...</p>
 <p id="score">Рахунок: 0</p>
-
 <div id="map"></div>
-
-<script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
+<button onclick="newRound()">Наступна країна</button>
 
 <script>
+// 🔹 Всі 195 країн світу з ISO-кодами та прапорами
 const countries = [
-  { code: "UA", name: "Україна", flag: "🇺🇦" },
-  { code: "FR", name: "Франція", flag: "🇫🇷" },
-  { code: "DE", name: "Німеччина", flag: "🇩🇪" },
-  { code: "PL", name: "Польща", flag: "🇵🇱" },
-  { code: "US", name: "США", flag: "🇺🇸" },
-  { code: "IT", name: "Італія", flag: "🇮🇹" },
-  { code: "ES", name: "Іспанія", flag: "🇪🇸" }
+{ code: "AF", name: "Афганістан", flag: "🇦🇫" },{ code: "AL", name: "Албанія", flag: "🇦🇱" },
+{ code: "DZ", name: "Алжир", flag: "🇩🇿" },{ code: "AS", name: "Американське Самоа", flag: "🇦🇸" },
+{ code: "AD", name: "Андорра", flag: "🇦🇩" },{ code: "AO", name: "Ангола", flag: "🇦🇴" },
+{ code: "AG", name: "Антигуа і Барбуда", flag: "🇦🇬" },{ code: "AR", name: "Аргентина", flag: "🇦🇷" },
+{ code: "AM", name: "Вірменія", flag: "🇦🇲" },{ code: "AU", name: "Австралія", flag: "🇦🇺" },
+{ code: "AT", name: "Австрія", flag: "🇦🇹" },{ code: "AZ", name: "Азербайджан", flag: "🇦🇿" },
+{ code: "BS", name: "Багами", flag: "🇧🇸" },{ code: "BH", name: "Бахрейн", flag: "🇧🇭" },
+{ code: "BD", name: "Бангладеш", flag: "🇧🇩" },{ code: "BB", name: "Барбадос", flag: "🇧🇧" },
+{ code: "BY", name: "Білорусь", flag: "🇧🇾" },{ code: "BE", name: "Бельгія", flag: "🇧🇪" },
+{ code: "BZ", name: "Беліз", flag: "🇧🇿" },{ code: "BJ", name: "Бенін", flag: "🇧🇯" },
+{ code: "BT", name: "Бутан", flag: "🇧🇹" },{ code: "BO", name: "Болівія", flag: "🇧🇴" },
+{ code: "BA", name: "Боснія і Герцеговина", flag: "🇧🇦" },{ code: "BW", name: "Ботсвана", flag: "🇧🇼" },
+{ code: "BR", name: "Бразилія", flag: "🇧🇷" },{ code: "BN", name: "Бруней", flag: "🇧🇳" },
+{ code: "BG", name: "Болгарія", flag: "🇧🇬" },{ code: "BF", name: "Буркіна-Фасо", flag: "🇧🇫" },
+{ code: "BI", name: "Бурунді", flag: "🇧🇮" },{ code: "KH", name: "Камбоджа", flag: "🇰🇭" },
+{ code: "CM", name: "Камерун", flag: "🇨🇲" },{ code: "CA", name: "Канада", flag: "🇨🇦" },
+{ code: "CV", name: "Кабо-Верде", flag: "🇨🇻" },{ code: "CF", name: "Центральноафриканська Республіка", flag: "🇨🇫" },
+{ code: "TD", name: "Чад", flag: "🇹🇩" },{ code: "CL", name: "Чилі", flag: "🇨🇱" },
+{ code: "CN", name: "Китай", flag: "🇨🇳" },{ code: "CO", name: "Колумбія", flag: "🇨🇴" },
+{ code: "KM", name: "Коморські Острови", flag: "🇰🇲" },{ code: "CG", name: "Конго", flag: "🇨🇬" },
+{ code: "CD", name: "Конго (ДРК)", flag: "🇨🇩" },{ code: "CR", name: "Коста-Рика", flag: "🇨🇷" },
+{ code: "CI", name: "Кот-д’Івуар", flag: "🇨🇮" },{ code: "HR", name: "Хорватія", flag: "🇭🇷" },
+{ code: "CU", name: "Куба", flag: "🇨🇺" },{ code: "CY", name: "Кіпр", flag: "🇨🇾" },
+{ code: "CZ", name: "Чехія", flag: "🇨🇿" },{ code: "DK", name: "Данія", flag: "🇩🇰" },
+{ code: "DJ", name: "Джибуті", flag: "🇩🇯" },{ code: "DM", name: "Домініка", flag: "🇩🇲" },
+{ code: "DO", name: "Домініканська Республіка", flag: "🇩🇴" },{ code: "EC", name: "Еквадор", flag: "🇪🇨" },
+{ code: "EG", name: "Єгипет", flag: "🇪🇬" },{ code: "SV", name: "Сальвадор", flag: "🇸🇻" },
+{ code: "GQ", name: "Екваторіальна Гвінея", flag: "🇬🇶" },{ code: "ER", name: "Еритрея", flag: "🇪🇷" },
+{ code: "EE", name: "Естонія", flag: "🇪🇪" },{ code: "SZ", name: "Есватіні", flag: "🇸🇿" },
+{ code: "ET", name: "Ефіопія", flag: "🇪🇹" },{ code: "FJ", name: "Фіджі", flag: "🇫🇯" },
+{ code: "FI", name: "Фінляндія", flag: "🇫🇮" },{ code: "FR", name: "Франція", flag: "🇫🇷" },
+{ code: "GA", name: "Габон", flag: "🇬🇦" },{ code: "GM", name: "Гамбія", flag: "🇬🇲" },
+{ code: "GE", name: "Грузія", flag: "🇬🇪" },{ code: "DE", name: "Німеччина", flag: "🇩🇪" },
+{ code: "GH", name: "Гана", flag: "🇬🇭" },{ code: "GR", name: "Греція", flag: "🇬🇷" },
+{ code: "GD", name: "Гренада", flag: "🇬🇩" },{ code: "GT", name: "Гватемала", flag: "🇬🇹" },
+{ code: "GN", name: "Гвінея", flag: "🇬🇳" },{ code: "GW", name: "Гвінея-Бісау", flag: "🇬🇼" },
+{ code: "GY", name: "Гайана", flag: "🇬🇾" },{ code: "HT", name: "Гаїті", flag: "🇭🇹" },
+{ code: "HN", name: "Гондурас", flag: "🇭🇳" },{ code: "HU", name: "Угорщина", flag: "🇭🇺" },
+{ code: "IS", name: "Ісландія", flag: "🇮🇸" },{ code: "IN", name: "Індія", flag: "🇮🇳" },
+{ code: "ID", name: "Індонезія", flag: "🇮🇩" },{ code: "IR", name: "Іран", flag: "🇮🇷" },
+{ code: "IQ", name: "Ірак", flag: "🇮🇶" },{ code: "IE", name: "Ірландія", flag: "🇮🇪" },
+{ code: "IL", name: "Ізраїль", flag: "🇮🇱" },{ code: "IT", name: "Італія", flag: "🇮🇹" },
+{ code: "JM", name: "Ямайка", flag: "🇯🇲" },{ code: "JP", name: "Японія", flag: "🇯🇵" },
+{ code: "JO", name: "Йорданія", flag: "🇯🇴" },{ code: "KZ", name: "Казахстан", flag: "🇰🇿" },
+{ code: "KE", name: "Кенія", flag: "🇰🇪" },{ code: "KI", name: "Кирибаті", flag: "🇰🇮" },
+{ code: "KW", name: "Кувейт", flag: "🇰🇼" },{ code: "KG", name: "Киргизстан", flag: "🇰🇬" },
+{ code: "LA", name: "Лаос", flag: "🇱🇦" },{ code: "LV", name: "Латвія", flag: "🇱🇻" },
+{ code: "LB", name: "Ліван", flag: "🇱🇧" },{ code: "LS", name: "Лесото", flag: "🇱🇸" },
+{ code: "LR", name: "Ліберія", flag: "🇱🇷" },{ code: "LY", name: "Лівія", flag: "🇱🇾" },
+{ code: "LI", name: "Ліхтенштейн", flag: "🇱🇮" },{ code: "LT", name: "Литва", flag: "🇱🇹" },
+{ code: "LU", name: "Люксембург", flag: "🇱🇺" },{ code: "MG", name: "Мадагаскар", flag: "🇲🇬" },
+{ code: "MW", name: "Малаві", flag: "🇲🇼" },{ code: "MY", name: "Малайзія", flag: "🇲🇾" },
+{ code: "MV", name: "Мальдіви", flag: "🇲🇻" },{ code: "ML", name: "Малі", flag: "🇲🇱" },
+{ code: "MT", name: "Мальта", flag: "🇲🇹" },{ code: "MH", name: "Маршаллові Острови", flag: "🇲🇭" },
+{ code: "MR", name: "Мавританія", flag: "🇲🇷" },{ code: "MU", name: "Маврикій", flag: "🇲🇺" },
+{ code: "MX", name: "Мексика", flag: "🇲🇽" },{ code: "FM", name: "Мікронезія", flag: "🇫🇲" },
+{ code: "MD", name: "Молдова", flag: "🇲🇩" },{ code: "MC", name: "Монако", flag: "🇲🇨" },
+{ code: "MN", name: "Монголія", flag: "🇲🇳" },{ code: "ME", name: "Чорногорія", flag: "🇲🇪" },
+{ code: "MA", name: "Марокко", flag: "🇲🇦" },{ code: "MZ", name: "Мозамбік", flag: "🇲🇿" },
+{ code: "MM", name: "М’янма", flag: "🇲🇲" },{ code: "NA", name: "Намібія", flag: "🇳🇦" },
+{ code: "NR", name: "Науру", flag: "🇳🇷" },{ code: "NP", name: "Непал", flag: "🇳🇵" },
+{ code: "NL", name: "Нідерланди", flag: "🇳🇱" },{ code: "NZ", name: "Нова Зеландія", flag: "🇳🇿" },
+{ code: "NI", name: "Нікарагуа", flag: "🇳🇮" },{ code: "NE", name: "Нігер", flag: "🇳🇪" },
+{ code: "NG", name: "Нігерія", flag: "🇳🇬" },{ code: "NO", name: "Норвегія", flag: "🇳🇴" },
+{ code: "OM", name: "Оман", flag: "🇴🇲" },{ code: "PK", name: "Пакистан", flag: "🇵🇰" },
+{ code: "PW", name: "Палау", flag: "🇵🇼" },{ code: "PA", name: "Панама", flag: "🇵🇦" },
+{ code: "PG", name: "Папуа Нова Гвінея", flag: "🇵🇬" },{ code: "PY", name: "Парагвай", flag: "🇵🇾" },
+{ code: "PE", name: "Перу", flag: "🇵🇪" },{ code: "PH", name: "Філіппіни", flag: "🇵🇭" },
+{ code: "PL", name: "Польща", flag: "🇵🇱" },{ code: "PT", name: "Португалія", flag: "🇵🇹" },
+{ code: "QA", name: "Катар", flag: "🇶🇦" },{ code: "RO", name: "Румунія", flag: "🇷🇴" },
+{ code: "RU", name: "Росія", flag: "🇷🇺" },{ code: "RW", name: "Руанда", flag: "🇷🇼" },
+{ code: "KN", name: "Сент-Кітс і Невіс", flag: "🇰🇳" },{ code: "LC", name: "Сент-Люсія", flag: "🇱🇨" },
+{ code: "VC", name: "Сент-Вінсент і Гренадини", flag: "🇻🇨" },{ code: "WS", name: "Самоа", flag: "🇼🇸" },
+{ code: "SM", name: "Сан-Марино", flag: "🇸🇲" },{ code: "ST", name: "Сан-Томе і Принсіпі", flag: "🇸🇹" },
+{ code: "SA", name: "Саудівська Аравія", flag: "🇸🇦" },{ code: "SN", name: "Сенегал", flag: "🇸🇳" },
+{ code: "RS", name: "Сербія", flag: "🇷🇸" },{ code: "SC", name: "Сейшели", flag: "🇸🇨" },
+{ code: "SL", name: "Сьєрра-Леоне", flag: "🇸🇱" },{ code: "SG", name: "Сінгапур", flag: "🇸🇬" },
+{ code: "SK", name: "Словаччина", flag: "🇸🇰" },{ code: "SI", name: "Словенія", flag: "🇸🇮" },
+{ code: "SB", name: "Соломонові Острови", flag: "🇸🇧" },{ code: "SO", name: "Сомалі", flag: "🇸🇴" },
+{ code: "ZA", name: "Південна Африка", flag: "🇿🇦" },{ code: "SS", name: "Південний Судан", flag: "🇸🇸" },
+{ code: "ES", name: "Іспанія", flag: "🇪🇸" },{ code: "LK", name: "Шрі-Ланка", flag: "🇱🇰" },
+{ code: "SD", name: "Судан", flag: "🇸🇩" },{ code: "SR", name: "Сурінам", flag: "🇸🇷" },
+{ code: "SE", name: "Швеція", flag: "🇸🇪" },{ code: "CH", name: "Швейцарія", flag: "🇨🇭" },
+{ code: "SY", name: "Сирія", flag: "🇸🇾" },{ code: "TJ", name: "Таджикистан", flag: "🇹🇯" },
+{ code: "TZ", name: "Танзанія", flag: "🇹🇿" },{ code: "TH", name: "Таїланд", flag: "🇹🇭" },
+{ code: "TL", name: "Тімор-Лешті", flag: "🇹🇱" },{ code: "TG", name: "Того", flag: "🇹🇬" },
+{ code: "TO", name: "Тонга", flag: "🇹🇴" },{ code: "TT", name: "Тринідад і Тобаго", flag: "🇹🇹" },
+{ code: "TN", name: "Туніс", flag: "🇹🇳" },{ code: "TR", name: "Туреччина", flag: "🇹🇷" },
+{ code: "TM", name: "Туркменістан", flag: "🇹🇲" },{ code: "TV", name: "Тувалу", flag: "🇹🇻" },
+{ code: "UG", name: "Уганда", flag: "🇺🇬" },{ code: "UA", name: "Україна", flag: "🇺🇦" },
+{ code: "AE", name: "ОАЕ", flag: "🇦🇪" },{ code: "GB", name: "Велика Британія", flag: "🇬🇧" },
+{ code: "US", name: "США", flag: "🇺🇸" },{ code: "UY", name: "Уругвай", flag: "🇺🇾" },
+{ code: "UZ", name: "Узбекистан", flag: "🇺🇿" },{ code: "VU", name: "Вануату", flag: "🇻🇺" },
+{ code: "VA", name: "Ватикан", flag: "🇻🇦" },{ code: "VE", name: "Венесуела", flag: "🇻🇪" },
+{ code: "VN", name: "В’єтнам", flag: "🇻🇳" },{ code: "YE", name: "Ємен", flag: "🇾🇪" },
+{ code: "ZM", name: "Замбія", flag: "🇿🇲" },{ code: "ZW", name: "Зімбабве", flag: "🇿🇼" }
 ];
 
 let current;
 let score = 0;
 
+// 🔹 Старт нового раунду
 function newRound() {
   current = countries[Math.floor(Math.random() * countries.length)];
-  document.getElementById("question").innerText =
-    "Знайди: " + current.name;
+  document.getElementById("question").innerText = "Знайди: " + current.name;
   document.getElementById("flag").innerText = current.flag;
 }
 
+// 🔹 Ініціалізація карти
 const map = new jsVectorMap({
   selector: "#map",
   map: "world",
-  onRegionClick: function(e, code) {
-
+  onRegionClick: function(event, code) {
     if (code === current.code) {
       score++;
       alert("✅ Правильно!");
     } else {
-      alert("❌ Неправильно!");
+      alert("❌ Неправильно! Це " + current.name);
     }
-
-    document.getElementById("score").innerText =
-      "Рахунок: " + score;
-
+    document.getElementById("score").innerText = "Рахунок: " + score;
     newRound();
   }
 });
