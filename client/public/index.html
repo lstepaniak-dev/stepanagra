@@ -23,6 +23,7 @@ h1 { margin: 10px; }
 button { font-size: 18px; margin-top: 10px; padding: 5px 10px; }
 </style>
 </head>
+
 <body>
 
 <h1>🌍 Географічна гра – знайди країну</h1>
@@ -37,9 +38,12 @@ button { font-size: 18px; margin-top: 10px; padding: 5px 10px; }
 
 <script>
 
-// 🌍 Всі країни (твій список залишаємо)
-const countries = [...document.currentScript.textContent.matchAll(/\{ code: "([A-Z]{2})", name: "([^"]+)", flag: "([^"]+)" \}/g)]
-  .map(m => ({ code: m[1], name: m[2], flag: m[3] }));
+// 🌍 ВАЖЛИВО: беремо ВСІ країни з карти (без багів)
+const countries = Object.keys(jsVectorMap.maps.world.paths).map(code => ({
+  code: code,
+  name: code, // можна потім замінити на переклад
+  flag: String.fromCodePoint(...[...code].map(c => 127397 + c.charCodeAt()))
+}));
 
 let current;
 let score = 0;
@@ -76,7 +80,7 @@ const map = new jsVectorMap({
   map: "world",
   showTooltip: false,
 
-  // 🇺🇦 ПРАПОР ПРИ НАВЕДЕННІ
+  // 🇺🇦 прапор при наведенні
   onRegionOver: function(e, code) {
     const country = countries.find(c => c.code === code);
     if (country) {
@@ -84,13 +88,18 @@ const map = new jsVectorMap({
     }
   },
 
-  // 🎯 КЛІК
+  // 🔁 повертає назад
+  onRegionOut: function() {
+    document.getElementById("flag").innerText = current.flag;
+  },
+
+  // 🎯 клік
   onRegionClick: function(event, code) {
     if (code === current.code) {
       score++;
       alert("✅ Правильно!");
     } else {
-      alert("❌ Неправильно! Це " + current.name);
+      alert("❌ Неправильно!");
     }
 
     document.getElementById("score").innerText = "Рахунок: " + score;
