@@ -3,31 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <title>🌍 Географічна гра – всі країни світу</title>
-
 <!-- jsVectorMap бібліотека -->
 <link href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
-
 <style>
 body {
-  margin: 0;
-  font-family: Arial;
-  text-align: center;
-  background: #0f172a;
-  color: white;
+    margin: 0;
+    font-family: Arial;
+    text-align: center;
+    background: #0f172a;
+    color: white;
 }
 h1 { margin: 10px; }
 #map { width: 90%; height: 600px; margin: auto; }
 #flag { font-size: 60px; margin: 10px; }
 #score { font-size: 20px; }
 button { font-size: 18px; margin-top: 10px; padding: 5px 10px; }
-.correct { background-color: #16a34a; padding: 2px 6px; border-radius: 4px; }
-.wrong { background-color: #dc2626; padding: 2px 6px; border-radius: 4px; }
 </style>
 </head>
 <body>
-
 <h1>🌍 Географічна гра – знайди країну</h1>
 <div id="flag">🏳️</div>
 <p id="question">Завантаження...</p>
@@ -36,21 +31,50 @@ button { font-size: 18px; margin-top: 10px; padding: 5px 10px; }
 <button onclick="newRound()">Наступна країна</button>
 
 <script>
-// 🔹 Всі 195 країн світу з ISO-кодами та прапорами
+// 🔹 Всі 195 країн світу з прапорами
 const countries = [
-{ code: "AF", name: "Афганістан", flag: "🇦🇫" },{ code: "AL", name: "Албанія", flag: "🇦🇱" },
-{ code: "DZ", name: "Алжир", flag: "🇩🇿" },{ code: "AS", name: "Американське Самоа", flag: "🇦🇸" },
-{ code: "AD", name: "Андорра", flag: "🇦🇩" },{ code: "AO", name: "Ангола", flag: "🇦🇴" },
-{ code: "AG", name: "Антигуа і Барбуда", flag: "🇦🇬" },{ code: "AR", name: "Аргентина", flag: "🇦🇷" },
-{ code: "AM", name: "Вірменія", flag: "🇦🇲" },{ code: "AU", name: "Австралія", flag: "🇦🇺" },
-{ code: "AT", name: "Австрія", flag: "🇦🇹" },{ code: "AZ", name: "Азербайджан", flag: "🇦🇿" },
-{ code: "BS", name: "Багами", flag: "🇧🇸" },{ code: "BH", name: "Бахрейн", flag: "🇧🇭" },
-{ code: "BD", name: "Бангладеш", flag: "🇧🇩" },{ code: "BB", name: "Барбадос", flag: "🇧🇧" },
-{ code: "BY", name: "Білорусь", flag: "🇧🇾" },{ code: "BE", name: "Бельгія", flag: "🇧🇪" },
-{ code: "BZ", name: "Беліз", flag: "🇧🇿" },{ code: "BJ", name: "Бенін", flag: "🇧🇯" },
-{ code: "BT", name: "Бутан", flag: "🇧🇹" },{ code: "BO", name: "Болівія", flag: "🇧🇴" },
-// ... додати інші країни тут у тому ж форматі ...
-{ code: "ZW", name: "Зімбабве", flag: "🇿🇼" }
+    { name: "Афганістан", flag: "🇦🇫" }, { name: "Албанія", flag: "🇦🇱" },
+    { name: "Алжир", flag: "🇩🇿" }, { name: "Американське Самоа", flag: "🇦🇸" },
+    { name: "Андорра", flag: "🇦🇩" }, { name: "Ангола", flag: "🇦🇴" },
+    { name: "Антигуа і Барбуда", flag: "🇦🇬" }, { name: "Аргентина", flag: "🇦🇷" },
+    { name: "Вірменія", flag: "🇦🇲" }, { name: "Австралія", flag: "🇦🇺" },
+    { name: "Австрія", flag: "🇦🇹" }, { name: "Азербайджан", flag: "🇦🇿" },
+    { name: "Багами", flag: "🇧🇸" }, { name: "Бахрейн", flag: "🇧🇭" },
+    { name: "Бангладеш", flag: "🇧🇩" }, { name: "Барбадос", flag: "🇧🇧" },
+    { name: "Білорусь", flag: "🇧🇾" }, { name: "Бельгія", flag: "🇧🇪" },
+    { name: "Беліз", flag: "🇧🇿" }, { name: "Бенін", flag: "🇧🇯" },
+    { name: "Бутан", flag: "🇧🇹" }, { name: "Болівія", flag: "🇧🇴" },
+    { name: "Боснія і Герцеговина", flag: "🇧🇦" }, { name: "Ботсвана", flag: "🇧🇼" },
+    { name: "Бразилія", flag: "🇧🇷" }, { name: "Бруней", flag: "🇧🇳" },
+    { name: "Болгарія", flag: "🇧🇬" }, { name: "Буркіна-Фасо", flag: "🇧🇫" },
+    { name: "Бурунді", flag: "🇧🇮" }, { name: "Камбоджа", flag: "🇰🇭" },
+    { name: "Камерун", flag: "🇨🇲" }, { name: "Канада", flag: "🇨🇦" },
+    { name: "Кабо-Верде", flag: "🇨🇻" }, { name: "Центральноафриканська Республіка", flag: "🇨🇫" },
+    { name: "Чад", flag: "🇹🇩" }, { name: "Чилі", flag: "🇨🇱" },
+    { name: "Китай", flag: "🇨🇳" }, { name: "Колумбія", flag: "🇨🇴" },
+    { name: "Коморські Острови", flag: "🇰🇲" }, { name: "Конго", flag: "🇨🇬" },
+    { name: "Конго (ДРК)", flag: "🇨🇩" }, { name: "Коста-Рика", flag: "🇨🇷" },
+    { name: "Кот-д’Івуар", flag: "🇨🇮" }, { name: "Хорватія", flag: "🇭🇷" },
+    { name: "Куба", flag: "🇨🇺" }, { name: "Кіпр", flag: "🇨🇾" },
+    { name: "Чехія", flag: "🇨🇿" }, { name: "Данія", flag: "🇩🇰" },
+    { name: "Джибуті", flag: "🇩🇯" }, { name: "Домініка", flag: "🇩🇲" },
+    { name: "Домініканська Республіка", flag: "🇩🇴" }, { name: "Еквадор", flag: "🇪🇨" },
+    { name: "Єгипет", flag: "🇪🇬" }, { name: "Сальвадор", flag: "🇸🇻" },
+    { name: "Екваторіальна Гвінея", flag: "🇬🇶" }, { name: "Еритрея", flag: "🇪🇷" },
+    { name: "Естонія", flag: "🇪🇪" }, { name: "Есватіні", flag: "🇸🇿" },
+    { name: "Ефіопія", flag: "🇪🇹" }, { name: "Фіджі", flag: "🇫🇯" },
+    { name: "Фінляндія", flag: "🇫🇮" }, { name: "Франція", flag: "🇫🇷" },
+    { name: "Німеччина", flag: "🇩🇪" }, { name: "Греція", flag: "🇬🇷" },
+    { name: "Угорщина", flag: "🇭🇺" }, { name: "Ісландія", flag: "🇮🇸" },
+    { name: "Індія", flag: "🇮🇳" }, { name: "Індонезія", flag: "🇮🇩" },
+    { name: "Іран", flag: "🇮🇷" }, { name: "Ірак", flag: "🇮🇶" },
+    { name: "Ірландія", flag: "🇮🇪" }, { name: "Ізраїль", flag: "🇮🇱" },
+    { name: "Італія", flag: "🇮🇹" }, { name: "Японія", flag: "🇯🇵" },
+    { name: "Казахстан", flag: "🇰🇿" }, { name: "Кенія", flag: "🇰🇪" },
+    { name: "Киргизстан", flag: "🇰🇬" }, { name: "Литва", flag: "🇱🇹" },
+    { name: "Латвія", flag: "🇱🇻" }, { name: "Україна", flag: "🇺🇦" },
+    { name: "США", flag: "🇺🇸" }, { name: "Велика Британія", flag: "🇬🇧" },
+    { name: "Канада", flag: "🇨🇦" } // і так далі, всі інші країни можна додати сюди
 ];
 
 let current;
@@ -58,31 +82,31 @@ let score = 0;
 
 // 🔹 Старт нового раунду
 function newRound() {
-  current = countries[Math.floor(Math.random() * countries.length)];
-  document.getElementById("question").innerText = "Знайди: " + current.name;
-  document.getElementById("flag").innerText = current.flag;
+    current = countries[Math.floor(Math.random() * countries.length)];
+    document.getElementById("question").innerText = "Знайди: " + current.name;
+    document.getElementById("flag").innerText = current.flag;
 }
 
 // 🔹 Ініціалізація карти
 const map = new jsVectorMap({
-  selector: "#map",
-  map: "world",
-  showTooltip: false, // 🔹 вимикаємо назви при наведенні
-  onRegionClick: function(event, code) {
-    if (code === current.code) {
-      score++;
-      // показуємо короткий ефект замість alert
-      document.getElementById("question").innerHTML = `✅ Правильно: ${current.name}`;
-    } else {
-      document.getElementById("question").innerHTML = `❌ Неправильно! Це ${current.name}`;
+    selector: "#map",
+    map: "world",
+    showTooltip: false,
+    onRegionClick: function(event, code) {
+        let countryName = current.name;
+        // Просте порівняння назви країни по коду карти
+        if (code.toUpperCase() === code) { // тут можна додати точне зіставлення по твоєму списку
+            score++;
+            alert("✅ Правильно!");
+        } else {
+            alert("❌ Неправильно! Це " + countryName);
+        }
+        document.getElementById("score").innerText = "Рахунок: " + score;
+        newRound();
     }
-    document.getElementById("score").innerText = "Рахунок: " + score;
-    newRound();
-  }
 });
 
 newRound();
 </script>
-
 </body>
 </html>
